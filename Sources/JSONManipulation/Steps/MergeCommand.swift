@@ -10,29 +10,17 @@ import ConsoleKit
 import Files
 import JSONKit
 
-struct Merge: StepParameters {
+struct Merge: Step {
     let inputPath: String?
     let outputPath: String?
+    let outputName: String?
 }
 
-extension Merge {
-    func execute() throws {
-        let searchDir = try Folder(path: sourceDirectory)
-        
-        let destination: File
-        if let destinationFile = destinationFile {
-            destination = try File(path: destinationFile)
-        } else {
-            var filename: UUID
-            repeat {
-                filename = UUID()
-            } while (searchDir.containsFile(at: filename))
-            destination = try searchDir.createFile(at: filename)
-        }
-        
+extension Merge: MultipleInputParameters {
+    func process(multipleJson: [JSONNode]) throws -> JSONNode? {
         var dataToSave: JSONNode? = nil
         
-        try searchDir.forEachJSONFile { file, jsonObj in
+        try multipleJson.forEach { jsonObj in
             if let oldData = dataToSave {
                 dataToSave = try oldData.merge(with: jsonObj)
             } else {
@@ -40,11 +28,7 @@ extension Merge {
             }
         }
         
-        if let data = dataToSave {
-            try destination.writeJSON(data)
-        } else {
-            try destination.write(Data())
-        }
+        return dataToSave
     }
 }
 

@@ -8,51 +8,32 @@ enum MapError: Error {
     case malformedObjects
 }
 
-struct Map: StepParameters {
+struct Map: Step {
     let inputPath: String?
     let outputPath: String?
-    var key: String?
+    let outputName: String?
+    
+    let key: String
 }
 
-extension Map {
-    func execute() throws {
-        let searchDir = try Folder(path: sourceDirectory)
-        guard let mapKey = key else {
-            throw MapError.missingKey
-        }
-        
-        var dataToSave = [String: JSONNode]()
-        
-        try searchDir.forEachJSONFile { file, jsonObj in
-            let newObj: JSONNode?
-            if case .array(let incomingArray) = jsonObj {
-                let newArray = try incomingArray.map { arrayItem -> JSONNode? in
-                    if case .dict(let dict) = arrayItem {
-                        return dict[mapKey]
-                    } else {
-                        throw MapError.missingKey
-                    }
+extension Map: SingleInputParameters {
+    func process(json: JSONNode) throws -> JSONNode? {
+        let newObj: JSONNode?
+        if case .array(let incomingArray) = json {
+            let newArray = try incomingArray.map { arrayItem -> JSONNode? in
+                if case .dict(let dict) = arrayItem {
+                    return dict[self.key]
+                } else {
+                    throw MapError.missingKey
                 }
-                newObj = .array(newArray)
-            } else if case .dict(let incomingDict) = jsonObj {
-                newObj = incomingDict[mapKey]
-            } else {
-                throw MapError.malformedObjects
             }
-            
-            dataToSave[file.path] = newObj
+            newObj = .array(newArray)
+        } else if case .dict(let incomingDict) = json {
+            newObj = incomingDict[self.key]
+        } else {
+            throw MapError.malformedObjects
         }
         
-        try dataToSave.forEach { path, value in
-            let file = try File(path: path)
-            try file.writeJSON(value)
-        }
-    }
-}
-
-extension Decodable {
-    static var classNameAsKey: String {
-        let className = String(describing: Self.self)
-        return className.prefix(1).lowercased() + className.dropFirst()
+        return newObj
     }
 }

@@ -7,28 +7,25 @@ enum UniqueKeyError: Error {
     case notAnArray
 }
 
-struct UniqueKey: StepParameters {
+struct UniqueKey: Step {
     let inputPath: String?
     let outputPath: String?
+    let outputName: String?
 }
 
-extension ProcessedStepParameters<UniqueKey> {
-    func execute() throws {
-        let file = try File(path: sourceFile)
-        
-        try file.editJSON { json in
-            guard case .array(let array) = json else {
-                throw UniqueKeyError.notAnArray
-            }
-
-            var addedDict = [JSONNode: Bool]()
-            return .array (
-                array
-                    .compactMap { $0 }
-                    .filter {
-                        addedDict.updateValue(true, forKey: $0) == nil
-                    }
-            )
+extension UniqueKey: SingleInputParameters {
+    func process(json: JSONNode) throws -> JSONNode? {
+        guard case .array(let array) = json else {
+            throw UniqueKeyError.notAnArray
         }
+
+        var addedDict = [JSONNode: Bool]()
+        return .array (
+            array
+                .compactMap { $0 }
+                .filter {
+                    addedDict.updateValue(true, forKey: $0) == nil
+                }
+        )
     }
 }

@@ -26,17 +26,16 @@ class ConfigurationFileCommand: Command {
         guard let yamlString = String(data: yamlData, encoding: .utf8) else {
             throw ConfigurationFileError.cantDecodeConfiguration
         }
-        let yaml: [ConfigurationStep]
+        let yaml: [Step]
         do {
-            yaml = try YAMLDecoder().decode([ConfigurationStep].self,
-                                            from: yamlString)
+            let decoded = try YAMLDecoder().decode([DecodableStep].self,
+                                                   from: yamlString)
+            yaml = decoded.map { $0.rawStep }
         } catch {
             throw ConfigurationFileError.badFormat
         }
         
-        try yaml.forEach {
-            try $0.execute()
-        }
+        try Processor.processSteps(yaml)
     }
 }
 

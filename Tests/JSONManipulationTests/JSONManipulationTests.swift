@@ -32,14 +32,14 @@ final class JSONManipulationTests: XCTestCase {
 
     /// Returns path to the built products directory.
     var productsDirectory: URL {
-      #if os(macOS)
-        for bundle in Bundles.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
-            return bundle.bundleURL.deletingLastPathComponent()
-        }
-        fatalError("couldn't find the products directory")
-      #else
+//      #if os(macOS)
+//        for bundle in Bundles.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
+//            return bundle.bundleURL.deletingLastPathComponent()
+//        }
+//        fatalError("couldn't find the products directory")
+//      #else
         return Bundle.main.bundleURL
-      #endif
+//      #endif
     }
     
     static var allTests = [
