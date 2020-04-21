@@ -34,8 +34,13 @@ class ConfigurationFileCommand: Command {
         do {
             yaml = try YAMLDecoder().decode([Step].self,
                                             from: yamlString)
-        } catch {
+        } catch let ex {
+            #if DEBUG
+            print(yamlString)
+            throw ex
+            #else
             throw ConfigurationFileError.badFormat
+            #endif
         }
         
         try Processor.process(steps: yaml, baseFolder: parentFolder)
