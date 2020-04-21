@@ -56,7 +56,7 @@ class Processor {
         
         try dataToSave.forEach { (filePath, contentToSave) in
             // TODO: Implement saving to multiple files per step
-            guard contentToSave.count == 1, let json = contentToSave.first else {
+            guard contentToSave.count <= 1, let json = contentToSave.first else {
                 throw ProcessorError.unsupportedMultipleFilesOutput
             }
             
