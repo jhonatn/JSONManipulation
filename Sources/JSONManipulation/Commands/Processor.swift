@@ -23,7 +23,8 @@ class Processor {
             let input: [JSONNode]
             if let explicitInput = baseParams.inputPath {
                 input = try loadFiles(from: explicitInput,
-                                      baseFolder: baseFolder)
+                                      baseFolder: baseFolder,
+                                      whitelistFilter: baseParams.whitelist)
             } else if let lastStepOutput = managedData[Self.lastStepOutputKey] {
                 input = lastStepOutput
             } else {
@@ -87,7 +88,7 @@ enum ProcessorError: Error {
     case inputFromPathNotFound
 }
 
-func loadFiles(from path: String, baseFolder: Folder) throws -> [JSONNode] {
+func loadFiles(from path: String, baseFolder: Folder, whitelistFilter: String?) throws -> [JSONNode] {
     let filesFound: [File]
     let contentFound = try baseFolder.getFileOrFolder(at: path)
     switch contentFound {
@@ -96,7 +97,11 @@ func loadFiles(from path: String, baseFolder: Folder) throws -> [JSONNode] {
     case .folder(let folder):
         filesFound = folder.files.filter {
             if $0.extension?.lowercased() == "json" {
-                return true
+                if let whitelistFilter = whitelistFilter {
+                    return $0.name.range(of: whitelistFilter, options: .regularExpression) != nil
+                } else {
+                    return true
+                }
             } else {
                 return false
             }

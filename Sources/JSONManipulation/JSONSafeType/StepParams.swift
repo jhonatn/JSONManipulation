@@ -70,4 +70,5 @@ struct BaseStepParams: Decodable {
     let inputPath: String?
     let outputPath: String?
     let outputName: String?
+    let whitelist: String?
 }
