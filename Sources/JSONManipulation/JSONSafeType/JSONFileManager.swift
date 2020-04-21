@@ -9,19 +9,6 @@ import Foundation
 import Files
 import JSONKit
 
-//extension Folder {
-//    func forEachJSONFile (_ handler: (File, JSONNode) throws -> Void) throws {
-//        try files.forEach { file in
-//            guard file.extension?.lowercased() == "json" else {
-//                return
-//            }
-//            
-//            let jsonObj = try file.readJSON()
-//            try handler(file, jsonObj)
-//        }
-//    }
-//}
-
 extension File {
     func writeJSON(_ json: JSONNode) throws {
         let data = try JSONEncoder().encode(json)
