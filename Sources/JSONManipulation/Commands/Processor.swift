@@ -19,6 +19,15 @@ class Processor {
         try steps.forEach { step in
             let (baseParams, stepParams) = step.params
             
+            if let rawParams = stepParams as? RawInputParameters {
+                guard let inputPath = baseParams.inputPath else {
+                    throw ProcessorError.stepIsMissingInput
+                }
+                let fileOrFolder = try baseFolder.getFileOrFolder(at: inputPath)
+                try rawParams.process(fileOrFolder: fileOrFolder)
+                return
+            }
+            
             // Obtaining input
             let input: [JSONNode]
             if let explicitInput = baseParams.inputPath {

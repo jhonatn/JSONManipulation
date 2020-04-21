@@ -7,6 +7,7 @@
 
 import Foundation
 import JSONKit
+import Files
 
 enum EnumDecodeError: Error {
     case typeNotMapped
@@ -16,6 +17,7 @@ enum Step: Decodable {
     case map        (BaseStepParams, Map)
     case merge      (BaseStepParams, Merge)
     case uniqueKey  (BaseStepParams, UniqueKey)
+    case delete     (BaseStepParams, Delete)
     
     enum CodingKeys: CodingKey {
         case action
@@ -31,6 +33,8 @@ enum Step: Decodable {
             self = .merge(baseParams, try Merge(from: decoder))
         case UniqueKey.classNameAsKey:
             self = .uniqueKey(baseParams, try UniqueKey(from: decoder))
+        case Delete.classNameAsKey:
+            self = .delete(baseParams, try Delete(from: decoder))
         default:
             throw EnumDecodeError.typeNotMapped
         }
@@ -44,6 +48,8 @@ enum Step: Decodable {
             return step
         case .uniqueKey(let step):
             return step
+        case .delete(let step):
+            return step
         }
     }
 }
@@ -53,6 +59,10 @@ extension Decodable {
         let className = String(describing: Self.self)
         return className.prefix(1).lowercased() + className.dropFirst()
     }
+}
+
+protocol RawInputParameters: StepParams {
+    func process(fileOrFolder: FileOrFolder) throws
 }
 
 protocol SingleInputParameters: StepParams {
@@ -67,6 +77,7 @@ protocol StepParams: Decodable {}
 
 struct BaseStepParams: Decodable {
     let action: String
+    let inputName: String?
     let inputPath: String?
     let outputPath: String?
     let outputName: String?
