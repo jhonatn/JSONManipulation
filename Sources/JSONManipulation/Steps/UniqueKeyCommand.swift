@@ -7,11 +7,7 @@ enum UniqueKeyError: Error {
     case notAnArray
 }
 
-struct UniqueKey: Step {
-    let inputPath: String?
-    let outputPath: String?
-    let outputName: String?
-}
+struct UniqueKey: StepParams {}
 
 extension UniqueKey: SingleInputParameters {
     func process(json: JSONNode) throws -> JSONNode? {

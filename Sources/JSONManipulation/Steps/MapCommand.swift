@@ -8,11 +8,7 @@ enum MapError: Error {
     case malformedObjects
 }
 
-struct Map: Step {
-    let inputPath: String?
-    let outputPath: String?
-    let outputName: String?
-    
+struct Map: StepParams {
     let key: String
 }
 

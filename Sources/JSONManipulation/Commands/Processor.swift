@@ -12,15 +12,18 @@ import JSONKit
 class Processor {
     private static let lastStepOutputKey = UUID().uuidString + "lastStepOutput" + UUID().uuidString
     
-    static func processSteps(_ steps: [Step]) throws {
+    static func process(steps: [Step]) throws {
         var managedData = [String:[JSONNode]]()
         var dataToSave = [String:[JSONNode]]()
         
-        try steps.forEach { parameters in
+        try steps.forEach { step in
+            let (baseParams, stepParams) = step.params
+            
             // Obtaining input
             let input: [JSONNode]
-            if let explicitInput = parameters.inputPath {
-                input = try loadFiles(from: explicitInput)
+            if let explicitInput = baseParams.inputPath {
+                input = try loadFiles(from: explicitInput,
+                                      whitelistFilter: baseParams.whitelist)
             } else if let lastStepOutput = managedData[Self.lastStepOutputKey] {
                 input = lastStepOutput
             } else {
@@ -29,7 +32,7 @@ class Processor {
             
             // Process step
             let output: [JSONNode]
-            switch parameters {
+            switch stepParams {
             case let sip as SingleInputParameters:
                 output = try input.compactMap { (data) in
                     try sip.process(json: data)
@@ -42,10 +45,10 @@ class Processor {
             
             // Save results
             managedData[Self.lastStepOutputKey] = output
-            if let outputKey = parameters.outputName {
+            if let outputKey = baseParams.outputName {
                 managedData[outputKey] = output
             }
-            if let outputPath = parameters.outputPath {
+            if let outputPath = baseParams.outputPath {
                 dataToSave[outputPath] = output
             }
         }

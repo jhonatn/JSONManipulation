@@ -10,11 +10,7 @@ import ConsoleKit
 import Files
 import JSONKit
 
-struct Merge: Step {
-    let inputPath: String?
-    let outputPath: String?
-    let outputName: String?
-}
+struct Merge: StepParams {}
 
 extension Merge: MultipleInputParameters {
     func process(multipleJson: [JSONNode]) throws -> JSONNode? {

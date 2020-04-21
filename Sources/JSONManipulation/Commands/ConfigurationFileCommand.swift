@@ -28,14 +28,13 @@ class ConfigurationFileCommand: Command {
         }
         let yaml: [Step]
         do {
-            let decoded = try YAMLDecoder().decode([DecodableStep].self,
-                                                   from: yamlString)
-            yaml = decoded.map { $0.rawStep }
+            yaml = try YAMLDecoder().decode([Step].self,
+                                            from: yamlString)
         } catch {
             throw ConfigurationFileError.badFormat
         }
         
-        try Processor.processSteps(yaml)
+        try Processor.process(steps: yaml)
     }
 }
 

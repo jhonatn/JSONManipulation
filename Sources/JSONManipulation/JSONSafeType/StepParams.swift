@@ -12,31 +12,31 @@ enum EnumDecodeError: Error {
     case typeNotMapped
 }
 
-enum DecodableStep: Decodable {
-    case map(Map)
-    case merge(Merge)
-    case uniqueKey(UniqueKey)
+enum Step: Decodable {
+    case map        (BaseStepParams, Map)
+    case merge      (BaseStepParams, Merge)
+    case uniqueKey  (BaseStepParams, UniqueKey)
     
     enum CodingKeys: CodingKey {
         case action
     }
     
     init(from decoder: Decoder) throws {
-        let baseParams = try BaseStepParameters(from: decoder)
+        let baseParams = try BaseStepParams(from: decoder)
         
-        switch baseParams.name {
+        switch baseParams.action {
         case Map.classNameAsKey:
-            self = .map(try Map(from: decoder))
+            self = .map(baseParams, try Map(from: decoder))
         case Merge.classNameAsKey:
-            self = .merge(try Merge(from: decoder))
+            self = .merge(baseParams, try Merge(from: decoder))
         case UniqueKey.classNameAsKey:
-            self = .uniqueKey(try UniqueKey(from: decoder))
+            self = .uniqueKey(baseParams, try UniqueKey(from: decoder))
         default:
             throw EnumDecodeError.typeNotMapped
         }
     }
     
-    var rawStep: Step {
+    var params: (BaseStepParams, StepParams) {
         switch self {
         case .map(let step):
             return step
@@ -55,23 +55,19 @@ extension Decodable {
     }
 }
 
-protocol SingleInputParameters: Step {
+protocol SingleInputParameters: StepParams {
     func process(json: JSONNode) throws -> JSONNode?
 }
 
-protocol MultipleInputParameters: Step {
+protocol MultipleInputParameters: StepParams {
     func process(multipleJson: [JSONNode]) throws -> JSONNode?
 }
 
-protocol Step: Decodable {
-    var inputPath: String? { get }
-    var outputPath: String? { get }
-    var outputName: String? { get }
-}
+protocol StepParams: Decodable {}
 
-struct BaseStepParameters: Decodable {
-    var name: String
-    var inputPath: String?
-    var outputPath: String?
-    var outputName: String?
+struct BaseStepParams: Decodable {
+    let action: String
+    let inputPath: String?
+    let outputPath: String?
+    let outputName: String?
 }
