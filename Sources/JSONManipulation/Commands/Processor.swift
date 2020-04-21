@@ -85,24 +85,45 @@ enum ProcessorError: Error {
     case stepIsMissingInput
     case unsupportedMultipleFilesOutput
     case nothingHappened
-    case inputCantBeLoaded
+    case inputFromPathNotFound
 }
 
 func loadFiles(from path: String) throws -> [JSONNode] {
     let filesFound: [File]
-    do {
-        let file = try File(path: path)
+    let contentFound = try Folder.root.getFileOrFolder(at: path)
+    switch contentFound {
+    case .file(let file):
         filesFound = [file]
-    } catch {
-        do {
-            let folder = try Folder(path: path)
-            filesFound = folder.files.filter { $0.extension?.lowercased() == "json" }
-        } catch {
-            throw ProcessorError.inputCantBeLoaded
+    case .folder(let folder):
+        filesFound = folder.files.filter {
+            if $0.extension?.lowercased() == "json" {
+                return true
+            } else {
+                return false
+            }
         }
     }
     
     return try filesFound.map {
         try $0.readJSON()
+    }
+}
+
+enum FileOrFolder {
+    case file(File)
+    case folder(Folder)
+}
+
+extension Folder {
+    func getFileOrFolder(at searchPath: String) throws -> FileOrFolder {
+        do {
+            return .file(try self.file(at: searchPath))
+        } catch {
+            do {
+                return .folder(try self.subfolder(at: searchPath))
+            } catch {
+                throw ProcessorError.inputFromPathNotFound
+            }
+        }
     }
 }
