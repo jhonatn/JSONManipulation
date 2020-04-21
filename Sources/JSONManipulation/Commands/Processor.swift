@@ -23,8 +23,7 @@ class Processor {
             let input: [JSONNode]
             if let explicitInput = baseParams.inputPath {
                 input = try loadFiles(from: explicitInput,
-                                      baseFolder: baseFolder,
-                                      whitelistFilter: baseParams.whitelist)
+                                      baseFolder: baseFolder)
             } else if let lastStepOutput = managedData[Self.lastStepOutputKey] {
                 input = lastStepOutput
             } else {
