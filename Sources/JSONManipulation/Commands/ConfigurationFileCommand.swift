@@ -21,8 +21,12 @@ class ConfigurationFileCommand: Command {
     }
     
     func run(using context: CommandContext, signature: Signature) throws {
-        let file = try File(path: signature.filePath)
-        let yamlData = try file.read()
+        let configFile = try File(path: signature.filePath)
+        guard let parentFolder = configFile.parent else {
+            throw ConfigurationFileError.cantAccessConfigParentFolder
+        }
+        
+        let yamlData = try configFile.read()
         guard let yamlString = String(data: yamlData, encoding: .utf8) else {
             throw ConfigurationFileError.cantDecodeConfiguration
         }
@@ -34,12 +38,12 @@ class ConfigurationFileCommand: Command {
             throw ConfigurationFileError.badFormat
         }
         
-        try Processor.process(steps: yaml)
+        try Processor.process(steps: yaml, baseFolder: parentFolder)
     }
 }
 
 enum ConfigurationFileError: Error, LocalizedError {
-    case cantDecodeConfiguration, badFormat
+    case cantDecodeConfiguration, badFormat, cantAccessConfigParentFolder
     
     var errorDescription: String? {
         switch self {
@@ -47,6 +51,8 @@ enum ConfigurationFileError: Error, LocalizedError {
             return "The configuration file is not structured as expected"
         case .cantDecodeConfiguration:
             return "The configuration file is not valid"
+        case .cantAccessConfigParentFolder:
+            return "Cannot access configuration file enclosing folder"
         }
     }
 }

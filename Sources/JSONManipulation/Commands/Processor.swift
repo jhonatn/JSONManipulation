@@ -12,7 +12,7 @@ import JSONKit
 class Processor {
     private static let lastStepOutputKey = UUID().uuidString + "lastStepOutput" + UUID().uuidString
     
-    static func process(steps: [Step]) throws {
+    static func process(steps: [Step], baseFolder: Folder) throws {
         var managedData = [String:[JSONNode]]()
         var dataToSave = [String:[JSONNode]]()
         
@@ -23,6 +23,7 @@ class Processor {
             let input: [JSONNode]
             if let explicitInput = baseParams.inputPath {
                 input = try loadFiles(from: explicitInput,
+                                      baseFolder: baseFolder,
                                       whitelistFilter: baseParams.whitelist)
             } else if let lastStepOutput = managedData[Self.lastStepOutputKey] {
                 input = lastStepOutput
@@ -54,13 +55,12 @@ class Processor {
         }
         
         try dataToSave.forEach { (filePath, contentToSave) in
-            let file = try File(path: filePath)
-            
             // TODO: Implement saving to multiple files per step
             guard contentToSave.count == 1, let json = contentToSave.first else {
                 throw ProcessorError.unsupportedMultipleFilesOutput
             }
             
+            let file = try baseFolder.createFileIfNeeded(at: filePath)
             try file.writeJSON(json)
         }
         
@@ -88,9 +88,9 @@ enum ProcessorError: Error {
     case inputFromPathNotFound
 }
 
-func loadFiles(from path: String) throws -> [JSONNode] {
+func loadFiles(from path: String, baseFolder: Folder) throws -> [JSONNode] {
     let filesFound: [File]
-    let contentFound = try Folder.root.getFileOrFolder(at: path)
+    let contentFound = try baseFolder.getFileOrFolder(at: path)
     switch contentFound {
     case .file(let file):
         filesFound = [file]
