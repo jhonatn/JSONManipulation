@@ -12,6 +12,7 @@ enum Step: Decodable {
     case uniqueKey      (BaseStepParams, UniqueKey)
     case delete         (BaseStepParams, Delete)
     case difference     (BaseStepParams, Difference)
+    case intersection   (BaseStepParams, Intersection)
     
     enum CodingKeys: CodingKey {
         case action
@@ -31,6 +32,8 @@ enum Step: Decodable {
             self = .delete(baseParams, try Delete(from: decoder))
         case Difference.classNameAsKey:
             self = .difference(baseParams, try Difference(from: decoder))
+        case Intersection.classNameAsKey:
+            self = .intersection(baseParams, try Intersection(from: decoder))
         default:
             throw EnumDecodeError.typeNotMapped
         }
@@ -47,6 +50,8 @@ enum Step: Decodable {
         case .delete(let step):
             return step
         case .difference(let step):
+            return step
+        case .intersection(let step):
             return step
         }
     }
