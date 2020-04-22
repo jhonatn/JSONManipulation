@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by everis on 4/3/20.
-//
-
 import Foundation
 import ConsoleKit
 import Files
