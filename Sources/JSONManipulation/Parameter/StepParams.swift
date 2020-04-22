@@ -55,7 +55,14 @@ extension Decodable {
 }
 
 protocol RawInputParameters: StepParams {
-    func process(fileOrFolder: FileOrFolder) throws
+    func process(input: StepIO, storage: ProcessorStorage) throws
+}
+
+extension RawInputParameters {
+    func process(optionalInput: StepIO?, storage: ProcessorStorage) throws {
+        try process(input: optionalInput ?? .passthrough,
+                    storage: storage)
+    }
 }
 
 protocol SingleInputParameters: StepParams {
@@ -70,9 +77,6 @@ protocol StepParams: Decodable {}
 
 struct BaseStepParams: Decodable {
     let action: String
-    let inputName: String?
-    let inputPath: String?
-    let outputPath: String?
-    let outputName: String?
-    let whitelist: String?
+    let input: StepIO?
+    let output: StepIO?
 }
