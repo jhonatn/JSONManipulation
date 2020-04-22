@@ -7,10 +7,11 @@ enum EnumDecodeError: Error {
 }
 
 enum Step: Decodable {
-    case map        (BaseStepParams, Map)
-    case merge      (BaseStepParams, Merge)
-    case uniqueKey  (BaseStepParams, UniqueKey)
-    case delete     (BaseStepParams, Delete)
+    case map            (BaseStepParams, Map)
+    case merge          (BaseStepParams, Merge)
+    case uniqueKey      (BaseStepParams, UniqueKey)
+    case delete         (BaseStepParams, Delete)
+    case difference     (BaseStepParams, Difference)
     
     enum CodingKeys: CodingKey {
         case action
@@ -28,6 +29,8 @@ enum Step: Decodable {
             self = .uniqueKey(baseParams, try UniqueKey(from: decoder))
         case Delete.classNameAsKey:
             self = .delete(baseParams, try Delete(from: decoder))
+        case Difference.classNameAsKey:
+            self = .difference(baseParams, try Difference(from: decoder))
         default:
             throw EnumDecodeError.typeNotMapped
         }
@@ -42,6 +45,8 @@ enum Step: Decodable {
         case .uniqueKey(let step):
             return step
         case .delete(let step):
+            return step
+        case .difference(let step):
             return step
         }
     }
