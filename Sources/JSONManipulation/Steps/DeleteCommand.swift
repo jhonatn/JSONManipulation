@@ -1,7 +1,5 @@
 import Foundation
-import ConsoleKit
 import Files
-import JSONKit
 
 struct Delete: StepParams {}
 
