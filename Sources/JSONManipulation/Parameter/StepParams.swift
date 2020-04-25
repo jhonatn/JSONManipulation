@@ -14,10 +14,6 @@ enum Step: Decodable {
     case difference     (BaseStepParams, Difference)
     case intersection   (BaseStepParams, Intersection)
     
-    enum CodingKeys: CodingKey {
-        case action
-    }
-    
     init(from decoder: Decoder) throws {
         let baseParams = try BaseStepParams(from: decoder)
         
