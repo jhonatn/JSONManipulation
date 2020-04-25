@@ -3,16 +3,19 @@ import JSONKit
 
 enum IntersectionError: Error {
     case cantIntersect
+    case noContent
 }
 
 struct Intersection: StepParams {}
 
 extension Intersection: MultipleInputParameters {
-    func process(multipleJson: [JSONNode]) throws -> JSONNode? {
-        var baseJson = multipleJson.first
-        let deductables = multipleJson.dropFirst()
-        try deductables.forEach { deductable in
-            try baseJson?.filterToIntersection(with: deductable)
+    func process(multipleJson: [JSONNode]) throws -> JSONNode {
+        guard var baseJson = multipleJson.first else {
+            throw IntersectionError.noContent
+        }
+        
+        try multipleJson.dropFirst().forEach { deductable in
+            try baseJson.filterToIntersection(with: deductable)
         }
         return baseJson
     }

@@ -1,18 +1,20 @@
 import Foundation
 import JSONKit
 
+enum MergeError: Error {
+    case noContent
+}
+
 struct Merge: StepParams {}
 
 extension Merge: MultipleInputParameters {
-    func process(multipleJson: [JSONNode]) throws -> JSONNode? {
-        var dataToSave: JSONNode? = nil
+    func process(multipleJson: [JSONNode]) throws -> JSONNode {
+        guard var dataToSave = multipleJson.first else {
+            throw MergeError.noContent
+        }
         
-        try multipleJson.forEach { jsonObj in
-            if let oldData = dataToSave {
-                dataToSave = try oldData.merge(with: jsonObj)
-            } else {
-                dataToSave = jsonObj
-            }
+        try multipleJson.dropFirst().forEach { jsonObj in
+            dataToSave = try dataToSave.merge(with: jsonObj)
         }
         
         return dataToSave
