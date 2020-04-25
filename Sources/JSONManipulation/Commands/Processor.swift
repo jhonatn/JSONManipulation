@@ -9,6 +9,8 @@ class Processor {
         try steps.forEach { step in
             let (baseParams, stepParams) = step.params
             
+            try stepParams.loadAdditionalIO(basedOn: storage)
+            
             if let rawParams = stepParams as? RawInputParameters {
                 try rawParams.process(optionalInput: baseParams.input,
                                       storage: storage)
