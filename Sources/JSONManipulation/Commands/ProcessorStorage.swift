@@ -64,6 +64,14 @@ class ProcessorStorage {
     func save(_ stepParams: StepIO?, jsonContent: [JSONFile]) throws {
         let stepParams = stepParams ?? .passthrough
         switch stepParams {
+        case .folder(let folderParams):
+            try jsonContent.forEach { file in
+                let folder = try baseFolder.subfolder(at: folderParams.folder)
+                let filename = try FilenameGenerator.generate(for: file,
+                                                              basedOn: folderParams.filter)
+                let newFile = try folder.file(at: filename)
+                dataToSave[newFile.path] = file
+            }
         case .file(let fileParams):
             if jsonContent.count == 1, let json = jsonContent.first {
                 dataToSave[fileParams.file] = json
@@ -73,9 +81,6 @@ class ProcessorStorage {
         case .named(let namedParams):
             managedData[namedParams.name] = jsonContent
         case .multiple:
-            // TODO: Implement saving to multiple files per step
-            throw ProcessorStorageError.unsupportedMultipleFilesOutput
-        case .folder:
             // TODO: Implement saving to multiple files per step
             throw ProcessorStorageError.unsupportedMultipleFilesOutput
         }
