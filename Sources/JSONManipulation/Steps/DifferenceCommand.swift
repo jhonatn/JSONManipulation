@@ -3,17 +3,24 @@ import JSONKit
 
 enum DifferenceError: Error {
     case cantDeduct
+    case noContent
 }
 
-struct Difference: StepParams {}
+struct Difference: StepParams {
+    private(set) var inputToBeDeducted: AdditionalStepIO
+    mutating func loadAdditionalIO(basedOn storage: ProcessorStorage) throws {
+        inputToBeDeducted = try loadAdditionalIO(inputToBeDeducted, storage: storage)
+    }
+}
 
-extension Difference: MultipleInputParameters {
-    func process(multipleJson: [JSONNode]) throws -> JSONNode? {
-        var baseJson = multipleJson.first
-        let deductables = multipleJson.dropFirst()
-        try deductables.forEach { deductable in
-            try baseJson?.deduct(deductable)
+extension Difference: SingleInputParameters {
+    func process(json: JSONNode) throws -> JSONNode {
+        var baseJson = json
+        
+        try inputToBeDeducted.content.forEach { deductable in
+            try baseJson.deduct(deductable.json)
         }
+        
         return baseJson
     }
 }
