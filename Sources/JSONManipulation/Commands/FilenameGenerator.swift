@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by everis on 4/23/20.
-//
-
 import Foundation
 
 enum FilenameGeneratorError: Error {

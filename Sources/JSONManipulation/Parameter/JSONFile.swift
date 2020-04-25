@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by everis on 4/22/20.
-//
-
 import Foundation
 import JSONKit
 import Files
