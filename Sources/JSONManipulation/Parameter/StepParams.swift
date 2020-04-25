@@ -66,14 +66,14 @@ extension RawInputParameters {
 }
 
 protocol SingleInputParameters: StepParams {
-    func process(json: JSONNode) throws -> JSONNode?
+    func process(json: JSONNode) throws -> JSONNode
 }
 
 protocol MultipleInputParameters: StepParams {
-    func process(multipleJson: [JSONNode]) throws -> JSONNode?
+    func process(multipleJson: [JSONNode]) throws -> JSONNode
 }
 
-protocol StepParams: Decodable {}
+protocol StepParams: Decodable, AdditionalIOContainer {}
 
 struct BaseStepParams: Decodable {
     let action: String

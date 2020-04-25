@@ -20,14 +20,17 @@ class Processor {
             let input = try storage.load(baseParams.input)
             
             // Process step
-            let output: [JSONNode]
+            let output: [JSONFile]
             switch stepParams {
             case let sip as SingleInputParameters:
-                output = try input.compactMap { (data) in
-                    try sip.process(json: data)
+                output = input
+                try output.forEach { (data) in
+                    data.json = try sip.process(json: data.json)
                 }
             case let mip as MultipleInputParameters:
-                output = try [mip.process(multipleJson: input)].compactMap { $0 }
+                let newJson = try mip.process(multipleJson: input.map(\.json))
+                let newFile = JSONFile(json: newJson)
+                output = [newFile]
             default:
                 fatalError("Programmer did a boo boo")
             }
@@ -45,7 +48,7 @@ class Processor {
                     if offset > 0 {
                         print("")
                     }
-                    let asData = try JSONEncoder().encode(json)
+                    let asData = try JSONEncoder().encode(json.json)
                     print(String(data: asData, encoding: .utf8)!)
                 }
             } else {

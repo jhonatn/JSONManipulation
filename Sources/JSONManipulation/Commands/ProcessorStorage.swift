@@ -12,22 +12,22 @@ extension StepIO {
 }
 
 class ProcessorStorage {
-    private var managedData = [String:[JSONNode]]()
-    private var dataToSave = [String:JSONNode]()
+    private var managedData = [String:[JSONFile]]()
+    private var dataToSave = [String:JSONFile]()
     
     let baseFolder: Folder
     init(baseFolder: Folder) {
         self.baseFolder = baseFolder
     }
     
-    func flushWriteable() throws -> [(File, JSONNode)] {
-        try dataToSave.map { (key, json) -> (File, JSONNode) in
+    func flushWriteable() throws -> [(File, JSONFile)] {
+        try dataToSave.map { (key, json) -> (File, JSONFile) in
             let file = try baseFolder.file(at: key)
             return (file, json)
         }
     }
     
-    func load(_ stepParams: StepIO?) throws -> [JSONNode] {
+    func load(_ stepParams: StepIO?) throws -> [JSONFile] {
         let stepParams = stepParams ?? .passthrough
         switch stepParams {
         case .folder(let folderParams):
@@ -61,7 +61,7 @@ class ProcessorStorage {
         managedData[name] = nil
     }
     
-    func save(_ stepParams: StepIO?, jsonContent: [JSONNode]) throws {
+    func save(_ stepParams: StepIO?, jsonContent: [JSONFile]) throws {
         let stepParams = stepParams ?? .passthrough
         switch stepParams {
         case .file(let fileParams):
@@ -83,6 +83,7 @@ class ProcessorStorage {
 }
 
 enum ProcessorStorageError: Error {
+    case cantGenerateFileName
     case stepIsMissingInput
     case unsupportedMultipleFilesOutput
 }

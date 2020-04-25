@@ -11,8 +11,8 @@ struct Map: StepParams {
 }
 
 extension Map: SingleInputParameters {
-    func process(json: JSONNode) throws -> JSONNode? {
-        let newObj: JSONNode?
+    func process(json: JSONNode) throws -> JSONNode {
+        let newObj: JSONNode
         if case .array(let incomingArray) = json {
             let newArray = try incomingArray.map { arrayItem -> JSONNode? in
                 if case .dict(let dict) = arrayItem {
@@ -22,8 +22,8 @@ extension Map: SingleInputParameters {
                 }
             }
             newObj = .array(newArray)
-        } else if case .dict(let incomingDict) = json {
-            newObj = incomingDict[self.key]
+        } else if case .dict(let incomingDict) = json, let value = incomingDict[self.key] {
+            newObj = value
         } else {
             throw MapError.malformedObjects
         }

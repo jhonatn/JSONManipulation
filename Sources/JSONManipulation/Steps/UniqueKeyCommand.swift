@@ -8,7 +8,7 @@ enum UniqueKeyError: Error {
 struct UniqueKey: StepParams {}
 
 extension UniqueKey: SingleInputParameters {
-    func process(json: JSONNode) throws -> JSONNode? {
+    func process(json: JSONNode) throws -> JSONNode {
         guard case .array(let array) = json else {
             throw UniqueKeyError.notAnArray
         }
