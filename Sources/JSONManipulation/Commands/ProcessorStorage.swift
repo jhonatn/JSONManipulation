@@ -35,7 +35,7 @@ class ProcessorStorage {
             var files = folder.files.map{$0}
             if let filterRegex = folderParams.filter {
                 files = files.filter {
-                    $0.name.range(of: filterRegex, options: .regularExpression) != nil
+                    $0.nameExcludingExtension.range(of: filterRegex, options: .regularExpression) != nil
                 }
             }
             return try files.map {
