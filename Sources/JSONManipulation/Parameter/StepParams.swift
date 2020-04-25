@@ -41,18 +41,12 @@ enum Step: Decodable {
     
     var params: (BaseStepParams, StepParams) {
         switch self {
-        case .map(let step):
-            return step
-        case .merge(let step):
-            return step
-        case .uniqueKey(let step):
-            return step
-        case .delete(let step):
-            return step
-        case .difference(let step):
-            return step
-        case .intersection(let step):
-            return step
+        case .map(let step):            return step
+        case .merge(let step):          return step
+        case .uniqueKey(let step):      return step
+        case .delete(let step):         return step
+        case .difference(let step):     return step
+        case .intersection(let step):   return step
         }
     }
 }
